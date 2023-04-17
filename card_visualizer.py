@@ -27,7 +27,7 @@ def generate_hexcard_image(hexcard, main_window):
     # Punch out the shape
     hexcard_image.paste(Image.new("RGBA", (500, 500), (0, 0, 0, 0)), mask=generate_hexmask())
 
-    hexcard_image.save("hexcard.png", "PNG")
+    hexcard_image.save("output/hexcard.png", "PNG")
 
     return hexcard_image
 
@@ -38,7 +38,7 @@ def generate_hexmask():
 
     hexmask_editor.regular_polygon((250, 250, 225), n_sides=6, fill=(0, 0, 0, 0))
 
-    hexmask.save("hexmask.png", "PNG")
+    hexmask.save("output/hexmask.png", "PNG")
 
     return hexmask
 
