@@ -1,7 +1,8 @@
-from tkinter import Tk, IntVar, StringVar, Text, END
+from tkinter import IntVar, StringVar, Text, END
 from tkinter import Label as tkLabel
-from tkinter.ttk import Button, Entry, Frame, Label, OptionMenu, Checkbutton
-from PIL import ImageTk
+from tkinter.ttk import Button, Entry, Frame, Label, OptionMenu, Checkbutton, Style
+from ttkthemes import ThemedTk
+from PIL import Image, ImageTk
 
 import card_visualizer
 import hexcard
@@ -36,8 +37,9 @@ class MainTkWindow:
                                             ('Arial', 10, 'italic'),
                                             column=2, row=6, columnspan=4, sticky="nsew")
 
-        # Create the generate button
+        # Create the buttons
         init_generate_button(self.content_frame)
+        init_save_button(self.content_frame)
 
         # Create the image of the card
         self.displayed_image_label, self.displayed_image = init_displayed_image(self.content_frame)
@@ -45,8 +47,9 @@ class MainTkWindow:
 
 def init_tk_window():
     """Initializes a tkinter Tk, returns it."""
-    window_frame = Tk()
-    window_frame.title("HexCard Maker v0.0")
+    window_frame = ThemedTk(theme='yaru')
+    window_frame.title("HexCard Maker v1.0")
+
     window_frame.columnconfigure(0, weight=1)
     window_frame.rowconfigure(0, weight=1)
 
@@ -85,7 +88,7 @@ def init_displayed_image(parent, image=None):
     """Creates the displayed image label and returns it with a basic placeholder image inside.
     May accept an ImageTK for display."""
     if image is None:
-        image = ImageTk.PhotoImage(card_visualizer.generate_hexmask())
+        image = ImageTk.PhotoImage(Image.open("data/img/hexcard.png"))
     else:
         image = image
 
@@ -109,7 +112,7 @@ def init_drop_downs(parent, variables):
 
 def init_generate_button(parent):
     generate_button = Button(parent, text="Make HexCard", command=submit_to_card_visualizer)
-    generate_button.grid(column=2, row=7, columnspan=4)
+    generate_button.grid(column=2, row=7, columnspan=2)
 
 
 def init_labels(parent):
@@ -134,6 +137,9 @@ def init_labels(parent):
     entry_hexflavor_label = Label(parent, text="Hex Flavor Text:")
     entry_hexflavor_label.grid(column=1, row=6)
 
+def init_save_button(parent):
+    save_button = Button(parent, text="Save to file", command=save_image)
+    save_button.grid(column=4, row=7, columnspan=2)
 
 def init_text_widget(parent, font, **kwargs):
     """Creates the flavor text input widget"""
@@ -153,6 +159,12 @@ def print_window_size():
     print(main_window.window.winfo_width(), main_window.window.winfo_height())
 
 
+def save_image():
+    """Saves the current hexcard image to file."""
+    saveable_image = ImageTk.getimage(main_window.displayed_image)
+    saveable_image.save("output/" + displayed_hexcard.hex_title + ".png", "PNG")
+
+
 def submit_to_card_visualizer():
     """Writes the current stats to the hexcard, then submits that card to the visualizer."""
     print_window_size()
@@ -160,6 +172,7 @@ def submit_to_card_visualizer():
 
     main_window.displayed_image_label, main_window.displayed_image = \
         init_displayed_image(main_window.content_frame, ImageTk.PhotoImage(card_visualizer.generate_hexcard_image(displayed_hexcard, main_window)))
+
 
 def write_to_hexcard():
     """Writes the data from the boxes into the current hexcard."""

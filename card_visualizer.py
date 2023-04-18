@@ -11,7 +11,7 @@ FLAVOR_FONT = ImageFont.truetype("C:/Windows/Fonts/ariali.ttf", 10)
 def generate_hexcard_image(hexcard, main_window):
     """Generates and returns an image of a hexcard from the given card's properties."""
     print("Generating Image")
-    hexcard_image = load_hex_bg()
+    hexcard_image = load_hex_bg(hexcard.hex_types)
 
     print("Compositing...")
     hexcard_image.alpha_composite(create_type_label_image(hexcard.hex_types), (0, 104))
@@ -27,8 +27,6 @@ def generate_hexcard_image(hexcard, main_window):
     # Punch out the shape
     hexcard_image.paste(Image.new("RGBA", (500, 500), (0, 0, 0, 0)), mask=generate_hexmask())
 
-    hexcard_image.save("output/hexcard.png", "PNG")
-
     return hexcard_image
 
 
@@ -38,7 +36,7 @@ def generate_hexmask():
 
     hexmask_editor.regular_polygon((250, 250, 225), n_sides=6, fill=(0, 0, 0, 0))
 
-    hexmask.save("output/hexmask.png", "PNG")
+    # hexmask.save("output/hexmask.png", "PNG")
 
     return hexmask
 
@@ -167,9 +165,23 @@ def create_type_label_image(hextypes):
     return title_label_image
 
 
-def load_hex_bg():
-    """Will eventually load a bg image from some variables. Right now just makes an empty green field. 
-    Returns an image."""
-    bg_image = Image.new("RGBA", (500, 500), (30, 110, 15, 255))
+def load_hex_bg(hextypes, filepath="data/img/"):
+    """Generates a bg image from the hextypes and the images stored in /data/img. Returns an image."""
+    # Set the base color for the hex
+    if "Snow" in hextypes:
+        bg_image = Image.new("RGBA", (500, 500), (220, 220, 220, 255))  # A white-ish base color for snow
+    elif "Desert" in hextypes:
+        bg_image = Image.new("RGBA", (500, 500), (235, 200, 135, 255))  # A light tan for sand
+    elif "Swamp" in hextypes:
+        bg_image = Image.new("RGBA", (500, 500), (30, 70, 40, 255))    # A dark swampy green
+    else:
+        bg_image = Image.new("RGBA", (500, 500), (90, 160, 30, 255))    # A default field green
+
+    # Composite the images for each type based on optimal layering
+    layer_order = ("Hill", "Field", "Farm", "River", "Road", "Desert", "Swamp", "Forest", "Settlement", "Sea")
+
+    for each_type in layer_order:
+        if each_type in hextypes:
+            bg_image.alpha_composite(Image.open(filepath + each_type + ".png"))
 
     return bg_image
